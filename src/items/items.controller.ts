@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import {
   Body,
   Controller,
@@ -9,33 +8,38 @@ import {
   Put,
 } from '@nestjs/common';
 import { CreateItemDto } from './dto/create-items.dto';
-import { Item } from "./interfaces/item.interface";
-import { ItemsService } from "./items.service";
+import { ItemsService } from './items.service';
+import { Item } from './schemas/item.schema';
 
 @Controller('items')
 export class ItemsController {
-	constructor(private readonly itemsService: ItemsService){}
+  constructor(private readonly itemsService: ItemsService) {}
+
   @Get()
-  findAll():Promise<Item[]> {
+  findAll(): Promise<Item[]> {
     return this.itemsService.findAll();
   }
 
   @Post()
-  create(@Body() createItemDto: CreateItemDto): string {
-    return `Name: ${createItemDto.name}, Price: ${createItemDto.price}, Description: ${createItemDto.description}, Qty: ${createItemDto.qty}`;
+  create(@Body() createItemDto: CreateItemDto): Promise<Item> {
+    return this.itemsService.create(createItemDto);
   }
 
   @Get(':id')
-  findOne(@Param('id') id): Promise<Item> {
+  findOne(@Param('id') id: string): Promise<Item | null> {
     return this.itemsService.findOne(id);
   }
 
   @Put(':id')
-  update(@Param('id')id: string,@Body() updateItemDto: CreateItemDto): string {
-    return `Name: ${updateItemDto.name}, Price: ${updateItemDto.price}, Description: ${updateItemDto.description}, Qty: ${updateItemDto.qty}`;
+  update(
+    @Param('id') id: string,
+    @Body() updateItemDto: Partial<CreateItemDto>,
+  ): Promise<Item | null> {
+    return this.itemsService.update(id, updateItemDto);
   }
+
   @Delete(':id')
-  delete(@Param('id') id: string): Promise<Item> {
+  delete(@Param('id') id: string): Promise<Item | null> {
     return this.itemsService.delete(id);
   }
 }
